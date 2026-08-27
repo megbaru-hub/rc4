@@ -8,6 +8,7 @@ In this project, I implemented the RC4 symmetric stream cipher in both Python an
 - `rc4Decryptor.py`: Python implementation of the RC4 file decryptor.
 - `rc4_encrypt.c`: Standalone C implementation of the RC4 encryptor.
 - `rc4_decrypt.c`: Standalone C implementation of the RC4 decryptor.
+- `rc4_gui.py`: Graphical user interface for visual testing.
 - `file.txt`: Sample test file.
 - `Makefile`: Build and test automation.
 - `verify.sh`: Comprehensive automated test suite.
@@ -42,10 +43,11 @@ I created a `Makefile` to simplify compilation and testing:
 ```bash
 make            # Compiles rc4Encryptor and rc4Decryptor
 make test       # Runs the full verification suite
+make gui        # Launches the graphical user interface
 make clean      # Cleans compiled binaries
 ```
 
-### 3. Manual Usage
+### 3. Manual Command-Line Usage
 **Running the Python scripts:**
 ```bash
 ./rc4Encrypt.py     # Encrypt file.txt
@@ -56,6 +58,14 @@ make clean      # Cleans compiled binaries
 ```bash
 ./rc4Encryptor [file_path] [custom_key]
 ./rc4Decryptor [file_path] [custom_key]
+```
+
+### 4. Graphical Interface (GUI)
+I also included a GUI for interactive testing with file browser dialogs:
+```bash
+./rc4_gui.py
+# or
+make gui
 ```
 
 ## Security Note
