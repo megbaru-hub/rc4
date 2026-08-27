@@ -61,19 +61,24 @@ make clean      # Cleans compiled binaries
 ./rc4Decryptor [file_path] [custom_key]
 ```
 
-### 4. Graphical Interface (GUI) & File Unlocker
-**Main GUI Suite:**
+### 4. Graphical Interface (GUI) & Media File Unlocker
+
+**Main Cryptography GUI Suite:**
 ```bash
 python3 rc4_gui.py
 # or
 make gui
 ```
+- **Responsive & Zoomable**: Fully resizable window with dynamic scaling for all preview and diagnostic panes.
+- **File Cipher Suite**: Dropdown file history, live SHA-256 checksum card, real-time key entropy meter, and live hex dump matrix.
+- **Stream Playground**: Real-time encryption/decryption of custom text with instant Hex, Base64, and Binary bitstring formatting.
+- **Crypto Lab**: 16&times;16 S-Box permutation matrix viewer, PRGA byte-by-byte execution stepper, speed benchmark (MB/s), and integrated test suite runner.
 
-**Direct File Unlocker Prompt (Double-click or CLI):**
+**Direct File Unlocker Prompt:**
 ```bash
 python3 rc4_decrypt_prompt.py <path_to_encrypted_file>
 ```
-When encrypting photos, videos, or PDFs with the `.rc4` extension, opening the locked file prompts for the secret key, decrypts it, and automatically opens it in the default system viewer.
+When encrypting media files (photos `.png`/`.jpg`, videos `.mp4`, music `.mp3`, documents `.pdf`) with the `.rc4` extension, opening the locked file prompts for the secret decryption key. Once entered, the program decrypts the file and automatically launches it in the system's default viewer/player.
 
 ## Security Note
 This project was developed for educational purposes to study stream cipher mechanics. RC4 contains known cryptographic weaknesses and should not be used in modern production systems.
