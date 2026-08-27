@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 
 def ksa(key: bytes) -> list:
     """Key Scheduling Algorithm """
@@ -41,8 +42,11 @@ def decrypt_file(file: str, key: bytes):
         print(f"[-] Error: {file} not found.")
 
 if __name__ == "__main__":
+    import os
+    import sys
     # the same key I use for encryption
     KEY = b"backtohomebutstillmissthesummercamp#INSA#AASTU2018E.C"
-
-    # exact absolute file path 
-    decrypt_file("/home/megbaru/file.txt", KEY)
+    default_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "file.txt")
+    target = sys.argv[1] if len(sys.argv) > 1 else default_path
+    key = sys.argv[2].encode() if len(sys.argv) > 2 else KEY
+    decrypt_file(target, key)

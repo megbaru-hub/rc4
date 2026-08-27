@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Key scheduling algorithm 
 def ksa(key: bytes) -> list:
 
@@ -22,7 +23,7 @@ def prga(S: list, data: bytes) -> bytes:
         out.append(byte ^ keystream_byte)
     return bytes(out)
 
-    """File Handling  I put the file variable instead of the actual file path or actual file mean file.txt cause python case an error due to the pyhton def rule it only use letter underscore number  only""" 
+"""File Handling  I put the file variable instead of the actual file path or actual file mean file.txt cause python case an error due to the pyhton def rule it only use letter underscore number  only""" 
 def encrypt_file(file: str, key: bytes):
     try:
         #  Open the file in binary mode and read into memory buffer
@@ -41,6 +42,11 @@ def encrypt_file(file: str, key: bytes):
         print(f"[-] Error: {file} not found.")
 
 if __name__ == "__main__":
+    import os
+    import sys
     # Define a secret key (must be in bytes)
     KEY = b"backtohomebutstillmissthesummercamp#INSA#AASTU2018E.C"
-    encrypt_file("/home/megbaru/file.txt", KEY)
+    default_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "file.txt")
+    target = sys.argv[1] if len(sys.argv) > 1 else default_path
+    key = sys.argv[2].encode() if len(sys.argv) > 2 else KEY
+    encrypt_file(target, key)
