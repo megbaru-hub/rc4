@@ -30,6 +30,7 @@ package: clean
 		rc4_encrypt.c \
 		rc4_decrypt.c \
 		rc4_gui.py \
+		rc4_decrypt_prompt.py \
 		file.txt \
 		Makefile \
 		verify.sh \

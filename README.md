@@ -8,7 +8,8 @@ In this project, I implemented the RC4 symmetric stream cipher in both Python an
 - `rc4Decryptor.py`: Python implementation of the RC4 file decryptor.
 - `rc4_encrypt.c`: Standalone C implementation of the RC4 encryptor.
 - `rc4_decrypt.c`: Standalone C implementation of the RC4 decryptor.
-- `rc4_gui.py`: Graphical user interface for visual testing.
+- `rc4_gui.py`: Full graphical user interface suite for visual testing.
+- `rc4_decrypt_prompt.py`: Quick password-prompt decrypter for opening locked media files (.png, .pdf, .mp4, etc.).
 - `file.txt`: Sample test file.
 - `Makefile`: Build and test automation.
 - `verify.sh`: Comprehensive automated test suite.
@@ -60,13 +61,19 @@ make clean      # Cleans compiled binaries
 ./rc4Decryptor [file_path] [custom_key]
 ```
 
-### 4. Graphical Interface (GUI)
-I also included a GUI for interactive testing with file browser dialogs:
+### 4. Graphical Interface (GUI) & File Unlocker
+**Main GUI Suite:**
 ```bash
-./rc4_gui.py
+python3 rc4_gui.py
 # or
 make gui
 ```
+
+**Direct File Unlocker Prompt (Double-click or CLI):**
+```bash
+python3 rc4_decrypt_prompt.py <path_to_encrypted_file>
+```
+When encrypting photos, videos, or PDFs with the `.rc4` extension, opening the locked file prompts for the secret key, decrypts it, and automatically opens it in the default system viewer.
 
 ## Security Note
 This project was developed for educational purposes to study stream cipher mechanics. RC4 contains known cryptographic weaknesses and should not be used in modern production systems.

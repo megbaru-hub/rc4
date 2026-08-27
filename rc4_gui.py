@@ -11,6 +11,7 @@ import math
 import base64
 import hashlib
 import secrets
+import subprocess
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
@@ -46,7 +47,7 @@ def get_file_info(filepath: str):
     elif size < 1024 * 1024:
         size_str = f"{size / 1024:.2f} KB ({size} bytes)"
     else:
-        size_str = f"{size / (1024 * 1024):.2f} MB ({size} bytes)"
+        size_str = f"{size / (1024 * 1024):.2f} MB ({size:,} bytes)"
 
     try:
         hasher = hashlib.sha256()
@@ -93,8 +94,9 @@ class ModernRC4App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("RC4 Stream Cipher Suite - Professional Edition")
-        self.geometry("780x660")
-        self.minsize(720, 600)
+        self.geometry("800x680")
+        self.minsize(700, 560)
+        self.resizable(True, True)
 
         # Style configuration
         self.style = ttk.Style(self)
@@ -183,6 +185,9 @@ class ModernRC4App(tk.Tk):
         btn_copy_hash = ttk.Button(row2, text="📋 Copy SHA-256", command=self.copy_file_hash)
         btn_copy_hash.pack(side="left", padx=(0, 6))
 
+        btn_open_file = ttk.Button(row2, text="↗️ Open in App", command=self.open_current_file)
+        btn_open_file.pack(side="left", padx=(0, 6))
+
         btn_reload = ttk.Button(row2, text="🔄 Reload File", command=self.on_file_changed)
         btn_reload.pack(side="right")
 
@@ -224,9 +229,17 @@ class ModernRC4App(tk.Tk):
         btn_random_key = ttk.Button(key_btn_frame, text="🎲 Generate 128-bit Key", command=self.generate_random_key)
         btn_random_key.pack(side="right", padx=2)
 
-        # 4. Action Buttons (Encrypt / Decrypt)
+        # 4. Mode Options (e.g. Append .rc4 extension for media files)
+        opt_box = ttk.Frame(self.tab_file)
+        opt_box.pack(fill="x", pady=(0, 4))
+
+        self.rename_rc4_var = tk.BooleanVar(value=True)
+        chk_rc4_ext = ttk.Checkbutton(opt_box, text="Add '.rc4' extension when encrypting (e.g. photo.png -> photo.png.rc4)", variable=self.rename_rc4_var)
+        chk_rc4_ext.pack(side="left")
+
+        # 5. Action Buttons (Encrypt / Decrypt)
         btn_container = ttk.Frame(self.tab_file)
-        btn_container.pack(fill="x", pady=6)
+        btn_container.pack(fill="x", pady=4)
 
         btn_encrypt = tk.Button(btn_container, text="🔒 Encrypt File", command=self.encrypt_selected_file, bg="#0284c7", fg="white", font=("Helvetica", 10, "bold"), relief="raised", padx=14, pady=7, cursor="hand2")
         btn_encrypt.pack(side="left", expand=True, fill="x", padx=(0, 4))
@@ -234,7 +247,7 @@ class ModernRC4App(tk.Tk):
         btn_decrypt = tk.Button(btn_container, text="🔓 Decrypt File", command=self.decrypt_selected_file, bg="#10b981", fg="white", font=("Helvetica", 10, "bold"), relief="raised", padx=14, pady=7, cursor="hand2")
         btn_decrypt.pack(side="right", expand=True, fill="x", padx=(4, 0))
 
-        # 5. Live File Preview & Hex Dump Display
+        # 6. Live File Preview & Hex Dump Display
         preview_frame = ttk.LabelFrame(self.tab_file, text=" 👁️ Live File Content & Hex Dump Preview ", padding=6)
         preview_frame.pack(fill="both", expand=True, pady=(2, 0))
 
@@ -248,6 +261,17 @@ class ModernRC4App(tk.Tk):
         self.file_path_var.trace_add("write", lambda *args: self.on_file_changed())
         self.on_file_changed()
         self.update_key_strength()
+
+    def open_current_file(self):
+        filepath = self.file_path_var.get().strip()
+        if filepath and os.path.isfile(filepath):
+            try:
+                subprocess.Popen(["xdg-open", filepath])
+                self.status_var.set(f"Opened file with default application: {os.path.basename(filepath)}")
+            except Exception as e:
+                messagebox.showerror("Error Opening File", str(e))
+        else:
+            messagebox.showwarning("Warning", "No valid file selected to open.")
 
     def update_key_strength(self):
         k = self.key_var.get()
@@ -318,7 +342,7 @@ class ModernRC4App(tk.Tk):
     def browse_target_file(self):
         f = filedialog.askopenfilename(
             title="Select File to Encrypt or Decrypt",
-            filetypes=[("All Files (*.*)", "*.*"), ("Text Files (*.txt)", "*.txt"), ("Binary Files (*.bin;*.dat)", "*.bin;*.dat")]
+            filetypes=[("All Files (*.*)", "*.*"), ("Media / Photos / Video", "*.png;*.jpg;*.jpeg;*.gif;*.mp4;*.mp3;*.pdf;*.zip"), ("Text Files (*.txt)", "*.txt"), ("RC4 Encrypted (*.rc4)", "*.rc4")]
         )
         if f:
             if f not in self.recent_files:
@@ -350,11 +374,24 @@ class ModernRC4App(tk.Tk):
 
         t0 = time.perf_counter()
         try:
-            rc4Encrypt.encrypt_file(filepath, key.encode())
+            target_out = filepath
+            if self.rename_rc4_var.get() and not filepath.endswith(".rc4"):
+                target_out = filepath + ".rc4"
+                with open(filepath, "rb") as f:
+                    data = f.read()
+                S = rc4Encrypt.ksa(key.encode("utf-8"))
+                ciphertext = rc4Encrypt.prga(S, data)
+                with open(target_out, "wb") as f:
+                    f.write(ciphertext)
+                os.remove(filepath)
+                self.file_path_var.set(target_out)
+            else:
+                rc4Encrypt.encrypt_file(filepath, key.encode())
+
             elapsed = (time.perf_counter() - t0) * 1000
             self.on_file_changed()
-            self.status_var.set(f"[+] Encrypted '{os.path.basename(filepath)}' in {elapsed:.2f} ms.")
-            messagebox.showinfo("Encryption Complete", f"Successfully encrypted:\n\n{filepath}\nProcessing time: {elapsed:.2f} ms")
+            self.status_var.set(f"[+] Encrypted '{os.path.basename(target_out)}' in {elapsed:.2f} ms.")
+            messagebox.showinfo("Encryption Complete", f"Successfully encrypted:\n\n{target_out}\nProcessing time: {elapsed:.2f} ms")
         except Exception as e:
             self.status_var.set(f"[-] Encryption failed: {e}")
             messagebox.showerror("Encryption Error", str(e))
@@ -371,11 +408,30 @@ class ModernRC4App(tk.Tk):
 
         t0 = time.perf_counter()
         try:
-            rc4Decryptor.decrypt_file(filepath, key.encode())
+            target_out = filepath
+            if filepath.endswith(".rc4"):
+                target_out = filepath[:-4]
+                with open(filepath, "rb") as f:
+                    ciphertext = f.read()
+                S = rc4Decryptor.ksa(key.encode("utf-8"))
+                plaintext = rc4Decryptor.prga(S, ciphertext)
+                with open(target_out, "wb") as f:
+                    f.write(plaintext)
+                os.remove(filepath)
+                self.file_path_var.set(target_out)
+            else:
+                rc4Decryptor.decrypt_file(filepath, key.encode())
+
             elapsed = (time.perf_counter() - t0) * 1000
             self.on_file_changed()
-            self.status_var.set(f"[+] Decrypted '{os.path.basename(filepath)}' in {elapsed:.2f} ms.")
-            messagebox.showinfo("Decryption Complete", f"Successfully decrypted:\n\n{filepath}\nProcessing time: {elapsed:.2f} ms")
+            self.status_var.set(f"[+] Decrypted '{os.path.basename(target_out)}' in {elapsed:.2f} ms.")
+            
+            ask = messagebox.askyesno("Decryption Complete", f"Successfully decrypted:\n\n{target_out}\n\nWould you like to open it now?")
+            if ask:
+                try:
+                    subprocess.Popen(["xdg-open", target_out])
+                except Exception:
+                    pass
         except Exception as e:
             self.status_var.set(f"[-] Decryption failed: {e}")
             messagebox.showerror("Decryption Error", str(e))
