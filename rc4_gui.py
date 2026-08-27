@@ -97,6 +97,11 @@ class ModernRC4App(tk.Tk):
         subtitle_lbl = tk.Label(header_frame, text="Symmetric Stream Encryption & Diagnostics", font=("Helvetica", 9), bg="#1e293b", fg="#94a3b8")
         subtitle_lbl.pack(side="right", padx=18, pady=15)
 
+        # Bottom Status Bar (Initialized first so tabs can log status)
+        self.status_var = tk.StringVar(value="Ready. Select an action or file to begin.")
+        status_bar = tk.Label(self, textvariable=self.status_var, relief="groove", anchor="w", font=("Helvetica", 9), bg="#e2e8f0", fg="#334155", padx=8, pady=4)
+        status_bar.pack(fill="x", side="bottom")
+
         # Main Notebook (Tabs)
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True, padx=12, pady=10)
@@ -115,11 +120,6 @@ class ModernRC4App(tk.Tk):
         self.tab_diag = ttk.Frame(self.notebook, padding=12)
         self.notebook.add(self.tab_diag, text=" ⚙️ S-Box & Tests ")
         self.init_diag_tab()
-
-        # Bottom Status Bar
-        self.status_var = tk.StringVar(value="Ready. Select an action or file to begin.")
-        status_bar = tk.Label(self, textvariable=self.status_var, relief="groove", anchor="w", font=("Helvetica", 9), bg="#e2e8f0", fg="#334155", padx=8, pady=4)
-        status_bar.pack(fill="x", side="bottom")
 
     # =========================================================================
     # TAB 1: FILE CIPHER
