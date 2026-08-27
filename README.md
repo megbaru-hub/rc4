@@ -1,38 +1,62 @@
 # RC4 Stream Cipher File Encryptor & Decryptor
 
-This is an educational implementation of the RC4 symmetric stream cipher in Python, comprising two separate scripts which are intended to encrypt and decrypt the contents of a local file by carrying out the processing in binary mode.
+In this project, I implemented the RC4 symmetric stream cipher in both Python and C. It allows encrypting and decrypting arbitrary files in binary mode with full data integrity.
 
 ## Project Structure
 
-The program `rc4Encrypt.py` reads the file `file.txt`, encrypts the data in it using RC4, and then replaces the original file with the binary ciphertext.
-The program `rc4Decryptor.py` decrypts the file named `file.txt` by inverting the RC4 keystream and thus retrieves the original plaintext.
+- `rc4Encrypt.py` / `rc4Encryptor.py`: Python implementation of the RC4 file encryptor.
+- `rc4Decryptor.py`: Python implementation of the RC4 file decryptor.
+- `rc4_encrypt.c`: Standalone C implementation of the RC4 encryptor.
+- `rc4_decrypt.c`: Standalone C implementation of the RC4 decryptor.
+- `file.txt`: Sample test file.
+- `Makefile`: Build and test automation.
+- `verify.sh`: Comprehensive automated test suite.
 
 ## How It Works
 
-RC4 uses a symmetric key stream generated via two main components:
-1. **Key Scheduling Algorithm (KSA):** The algorithm sets up a 256-byte array of permuted states using the secret key.
-2. **Pseudo-Random Generation Algorithm (PRGA):** It produces a stream of bytes one after another, which is then XORed with the data in the file.
+RC4 uses a symmetric keystream generated through two main components:
+1. **Key Scheduling Algorithm (KSA):** Initializes and permutes a 256-byte state array `S` based on the secret key.
+2. **Pseudo-Random Generation Algorithm (PRGA):** Continuously generates a pseudo-random keystream XORed byte-by-byte with the plaintext.
 
-Since the XOR operation is identical to its inverse, encrypting the data once with the same stream sequence will exactly recover the original text.
+Because XOR is self-inverting ($(\text{Plaintext} \oplus K) \oplus K = \text{Plaintext}$), encrypting the ciphertext with the identical key restores the original plaintext.
 
-## Usage Instructions
+## How to Build and Run
 
-### 1. Preparation
-In the same directory as the scripts make a target file called file.txt and put some sample text into it.
-
-### 2. Encryption
-Run the encryptor script from your terminal:
+### 1. Automated Verification Suite
+I wrote an 8-stage automated test suite to verify the correctness of both my Python and C implementations:
 ```bash
-python rc4Encrypt.py
+make test
+# or directly:
+./verify.sh
 ```
-*Verification:* When you use the command `cat file.txt` to view the contents of `file.txt`, it will now show unreadable binary characters.
 
-### 3. Decryption
-Run the decryptor script to reverse the process:
+Tests included in the suite:
+- Python encryption & decryption roundtrip integrity
+- Native C binary encryption & decryption roundtrip
+- Cross-compatibility (encrypt with Python &harr; decrypt with C)
+- Random binary file payload handling
+- Key-specificity validation
+
+### 2. Building Native Binaries
+I created a `Makefile` to simplify compilation and testing:
 ```bash
-python rc4Decryptor.py
+make            # Compiles rc4Encryptor and rc4Decryptor
+make test       # Runs the full verification suite
+make clean      # Cleans compiled binaries
 ```
-*Verification:* On rechecking file.txt your original plain text will be found perfectly restored.
 
-## Security Disclaimer
-The repository has been set up entirely for academic and educational use. RC4 is known to have cryptographic flaws and includes identified vulnerabilities in its keystream. It should not be used in production environments or in modern secure communication systems.
+### 3. Manual Usage
+**Running the Python scripts:**
+```bash
+./rc4Encrypt.py     # Encrypt file.txt
+./rc4Decryptor.py   # Decrypt file.txt
+```
+
+**Running the native C executables:**
+```bash
+./rc4Encryptor [file_path] [custom_key]
+./rc4Decryptor [file_path] [custom_key]
+```
+
+## Security Note
+This project was developed for educational purposes to study stream cipher mechanics. RC4 contains known cryptographic weaknesses and should not be used in modern production systems.
